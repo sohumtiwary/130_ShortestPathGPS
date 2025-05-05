@@ -1,0 +1,10 @@
+6 8
+U V W X Y Z
+U V 2
+U X 1
+V W 3
+V X 2
+W Z 5
+W Y 1
+X Y 1
+Y Z 2
