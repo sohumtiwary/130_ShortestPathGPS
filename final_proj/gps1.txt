@@ -1,0 +1,10 @@
+6 8
+Aldoria Bramhelm Celestia Drakmoor Eldoria Frostfall
+Aldoria Bramhelm 10
+Aldoria Drakmoor 8
+Bramhelm Celestia 15
+Bramhelm Drakmoor 12
+Celestia Frostfall 20
+Celestia Eldoria 5
+Drakmoor Eldoria 7
+Eldoria Frostfall 9

@@ -1,18 +1,28 @@
-CXX      := g++
-CXXFLAGS := -std=c++17 \
-            -I"SFML-3.0.0/include"
-LDFLAGS  := -L"SFML-3.0.0/lib" \
-            -lsfml-graphics \
-            -lsfml-window \
-            -lsfml-system
+# Makefile for GPSNetwork demo
 
-SRC      := visualize_route_with_cities.cpp
-TARGET   := prog
+# compiler settings
+CXX       := g++
+CXXFLAGS  := -std=c++17 -Wall -Wextra -O2
+
+# executable name
+TARGET    := prog
+
+# source files
+SRCS      := dijkstraVectorImp.cpp
+OBJS      := $(SRCS:.cpp=.o)
+
+.PHONY: all run clean
 
 all: $(TARGET)
 
-$(TARGET): $(SRC)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS)
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $<
+
+run: $(TARGET)
+	./$(TARGET)
 
 clean:
-	del $(TARGET) || rm -f $(TARGET)
+	rm -f $(TARGET) $(OBJS)
