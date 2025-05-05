@@ -214,7 +214,7 @@ public:
 
 int main(int argc, char *argv[]) {
     // Load from file: imaginary_topo.txt
-    GPSNetwork map("imaginary_topo.txt");
+    GPSNetwork map("gps1.txt");
 
     map.displayMap();
     map.computeRoutingTable("Aldoria");
