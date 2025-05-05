@@ -8,7 +8,7 @@ CXXFLAGS  := -std=c++17 -Wall -Wextra -O2
 TARGET    := navigator
 
 # source files
-SRCS      := dijkstraVectorImp.cpp
+SRCS      := navigator.cpp
 OBJS      := $(SRCS:.cpp=.o)
 
 # default cities (override on the command‐line)
