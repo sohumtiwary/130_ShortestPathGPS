@@ -5,11 +5,15 @@ CXX       := g++
 CXXFLAGS  := -std=c++17 -Wall -Wextra -O2
 
 # executable name
-TARGET    := prog
+TARGET    := navigator
 
 # source files
 SRCS      := dijkstraVectorImp.cpp
 OBJS      := $(SRCS:.cpp=.o)
+
+# default cities (override on the command‐line)
+SRC ?= Aldoria
+DST ?= Frostfall
 
 .PHONY: all run clean
 
@@ -21,8 +25,9 @@ $(TARGET): $(OBJS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
+# run with `make run SRC=CityA DST=CityB`
 run: $(TARGET)
-	./$(TARGET)
+	./$(TARGET) $(SRC) $(DST)
 
 clean:
 	rm -f $(TARGET) $(OBJS)
