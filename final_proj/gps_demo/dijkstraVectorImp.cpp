@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <string>
 
 using namespace std;
 
@@ -16,7 +17,6 @@ private:
     vector<string> cityNames;
     vector<vector<int>> adjacencyMatrix;
 
-    // Helper to get index of a city by name
     int getCityIndex(const string &city) const {
         for (int i = 0; i < numberOfNodes; i++) {
             if (cityNames[i] == city) return i;
@@ -25,7 +25,6 @@ private:
     }
 
 public:
-    // Default constructor: sample map for demonstration
     GPSNetwork() {
         numberOfNodes = 6;
         cityNames = {"Aldoria", "Bramhelm", "Celestia", "Drakmoor", "Eldoria", "Frostfall"};
@@ -33,7 +32,6 @@ public:
         for (int i = 0; i < numberOfNodes; i++)
             adjacencyMatrix[i][i] = 0;
 
-        // Distances in miles (fictional)
         addRoad("Aldoria", "Bramhelm", 10);
         addRoad("Aldoria", "Drakmoor", 8);
         addRoad("Bramhelm", "Celestia", 15);
@@ -44,34 +42,26 @@ public:
         addRoad("Eldoria", "Frostfall", 9);
     }
 
-    // File-based constructor: load map from a text file
     GPSNetwork(const string &filename) {
         cout << "Importing map data from: " << filename << "\n";
         parseFile(filename);
     }
 
-    // Parse map file:
-    // First line: <N> <M> (#cities and #roads)
-    // Second line: N city-names (space-separated)
-    // Next M lines: <city1> <city2> <distance>
     void parseFile(const string &filename) {
         ifstream in(filename);
         if (!in) {
             cerr << "Error opening file: " << filename << "\n";
             exit(1);
         }
-
         int M;
         in >> numberOfNodes >> M;
         cityNames.resize(numberOfNodes);
         for (int i = 0; i < numberOfNodes; i++) {
             in >> cityNames[i];
         }
-
         adjacencyMatrix.assign(numberOfNodes, vector<int>(numberOfNodes, INF));
         for (int i = 0; i < numberOfNodes; i++)
             adjacencyMatrix[i][i] = 0;
-
         string c1, c2;
         int dist;
         for (int e = 0; e < M; e++) {
@@ -80,7 +70,6 @@ public:
         }
     }
 
-    // Add (bidirectional) road between two cities
     void addRoad(const string &cityA, const string &cityB, int distance) {
         int i = getCityIndex(cityA);
         int j = getCityIndex(cityB);
@@ -90,7 +79,6 @@ public:
         }
     }
 
-    // Convert a road to one-way: from->to stays, to->from becomes INF
     void makeOneWay(const string &fromCity, const string &toCity) {
         int i = getCityIndex(fromCity);
         int j = getCityIndex(toCity);
@@ -99,7 +87,6 @@ public:
         }
     }
 
-    // Display the map (adjacency list of roads)
     void displayMap() const {
         cout << "\n=== City Road Map ===\n";
         for (int i = 0; i < numberOfNodes; i++) {
@@ -112,16 +99,15 @@ public:
         }
     }
 
-    // Compute and print Dijkstra routing table from a source city
     void computeRoutingTable(const string &sourceCity) const {
         int src = getCityIndex(sourceCity);
-        if (src < 0) return;
-
+        if (src < 0) {
+            cerr << "Error: source city not found: " << sourceCity << "\n";
+            return;
+        }
         vector<int> dist(numberOfNodes, INF), prev(numberOfNodes, -1);
         vector<bool> visited(numberOfNodes, false);
         dist[src] = 0;
-
-        // Standard Dijkstra
         for (int cnt = 0; cnt < numberOfNodes; cnt++) {
             int u = -1, best = INF;
             for (int i = 0; i < numberOfNodes; i++) {
@@ -131,7 +117,6 @@ public:
             }
             if (u < 0) break;
             visited[u] = true;
-
             for (int v = 0; v < numberOfNodes; v++) {
                 if (!visited[v] && adjacencyMatrix[u][v] != INF &&
                     dist[u] + adjacencyMatrix[u][v] < dist[v]) {
@@ -140,8 +125,6 @@ public:
                 }
             }
         }
-
-        // Print routing table
         cout << "\n=== Dijkstra Routing Table from " << sourceCity << " ===\n";
         cout << "Destination    Next Hop    Distance(mi)\n";
         cout << "-------------------------------------\n";
@@ -158,7 +141,6 @@ public:
         }
     }
 
-    // Compute the single-source, single-destination shortest path
     void computeShortestPath(const string &startCity, const string &endCity) const {
         int src = getCityIndex(startCity);
         int dst = getCityIndex(endCity);
@@ -166,12 +148,9 @@ public:
             cerr << "Error: invalid city name(s).\n";
             return;
         }
-
         vector<int> dist(numberOfNodes, INF), prev(numberOfNodes, -1);
         vector<bool> visited(numberOfNodes, false);
         dist[src] = 0;
-
-        // Run Dijkstra
         for (int cnt = 0; cnt < numberOfNodes; cnt++) {
             int u = -1, best = INF;
             for (int i = 0; i < numberOfNodes; i++) {
@@ -189,20 +168,13 @@ public:
                 }
             }
         }
-
         if (dist[dst] == INF) {
             cout << "No route found from " << startCity << " to " << endCity << ".\n";
             return;
         }
-
-        // Reconstruct path
         vector<int> path;
-        for (int at = dst; at != -1; at = prev[at]) {
-            path.push_back(at);
-        }
+        for (int at = dst; at != -1; at = prev[at]) path.push_back(at);
         reverse(path.begin(), path.end());
-
-        // Print route
         cout << "\nShortest path from " << startCity << " to " << endCity << ":\n";
         for (size_t i = 0; i < path.size(); i++) {
             cout << cityNames[path[i]];
@@ -212,13 +184,18 @@ public:
     }
 };
 
-int main(int argc, char *argv[]) {
-    // Load from file: imaginary_topo.txt
-    GPSNetwork map("gps1.txt");
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        cerr << "Usage: " << argv[0] << " <sourceCity> <destCity>\n";
+        return 1;
+    }
+    string sourceCity = argv[1];
+    string destCity = argv[2];
 
+    GPSNetwork map("gps2.txt");
     map.displayMap();
-    map.computeRoutingTable("Aldoria");
-    map.computeShortestPath("Aldoria", "Frostfall");
+    map.computeRoutingTable(sourceCity);
+    map.computeShortestPath(sourceCity, destCity);
 
     return 0;
 }
